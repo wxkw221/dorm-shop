@@ -657,7 +657,7 @@ window.addEventListener('error', function(ev){
       stack = fullStack.split('\n').slice(0,2).join(' ⏎ ');
       if(stack.length > 180) stack = stack.slice(0,180) + '…';
     }
-    bar.textContent = '页面出错了（v1125a 已自动收起）：' + (ev.message || '未知错误') +
+    bar.textContent = '页面出错了（v1125b 已自动收起）：' + (ev.message || '未知错误') +
       '｜' + where + ' 第' + (ev.lineno || '?') + '行 第' + (ev.colno || '?') + '列' +
       (stack ? '｜' + stack : '') + '（点这条关掉）';
     clearTimeout(window.__errT);
