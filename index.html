@@ -680,8 +680,8 @@ const DEFAULT_SHOP_ID = '6X7GHM';
 /* P0-1：云端地址与 anon key 只在这里出现，运行期不可被 localStorage 覆盖。
    以前 settings.cloud 可被改，页面就会把全站数据静默转发到别人的库；
    现在 sb() / pushShop() / pullShop() 读到的都是下面两个常量。 */
-const CLOUD_URL = 'https://gqlfgvnppllzajsycqqq.supabase.co';
-const CLOUD_KEY = 'sb_publishable_qNDj06VjVd0okwi4_D_I-w_SlluMEb4';
+const CLOUD_URL = 'https://bjgatmvgihkaiobhorlu.supabase.co';
+const CLOUD_KEY = 'sb_publishable_8sxcBzWNK9_FGf3fMBTOgQ_3VVLFDXe';
 const DEFAULT_SETTINGS = { name:'318 宿舍小卖铺', slogan:'营业中 · 5 分钟送到宿舍门口', logo:'🏪', logoImg:'', open:true, notice:'', wxQr:'', aliQr:'', cloudPushedAt:0, localUpdated:0, dirty:false, ownerDevice:false,
   cloud:{ url:CLOUD_URL, key:CLOUD_KEY, shopId:DEFAULT_SHOP_ID } };
 
@@ -697,7 +697,16 @@ const CLOUD_SQL = `create table if not exists public.orders (
   total numeric default 0,
   status int default 0,
   created bigint,
-  updated bigint
+  updated bigint,
+  pay_no text,
+  pay_img text,
+  pay_tail text,
+  pay_ok boolean default false,
+  owner_uid uuid default auth.uid(),
+  rider_uid uuid,
+  rider_name text,
+  dedupe_key text,
+  updated_at timestamptz default now()
 );
 
 create table if not exists public.shops (
@@ -711,13 +720,14 @@ create table if not exists public.shops (
   updated bigint
 );
 
+create unique index if not exists orders_dedupe_key_uidx
+  on public.orders(dedupe_key) where dedupe_key is not null;
+
 alter table public.orders enable row level security;
 alter table public.shops enable row level security;
 
-grant select, insert, update, delete on public.orders to anon;
-grant select, insert, update, delete on public.orders to authenticated;
-grant select, insert, update, delete on public.shops to anon;
-grant select, insert, update, delete on public.shops to authenticated;
+grant select, insert, update, delete on public.orders to anon, authenticated;
+grant select, insert, update, delete on public.shops to anon, authenticated;
 
 drop policy if exists "anon_all" on public.orders;
 create policy "anon_all" on public.orders for all to anon using (true) with check (true);
